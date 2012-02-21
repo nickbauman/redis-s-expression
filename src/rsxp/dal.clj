@@ -4,7 +4,9 @@
   (:require [redis.core :as redis])
   (:import [java.io StringReader PushbackReader StringWriter]))
 
-(def ^{:private true} cx {:cx "127.0.0.1" :port 6379 :db 0})
+(def ^{:private true
+       :doc "we probably want this more configurable at some point."} 
+      cx {:cx "127.0.0.1" :port 6379 :db 0})
 
 (declare db-save)
 
@@ -141,15 +143,14 @@
                        (throw (RuntimeException. (str "unsupported key type: " (redis/type akey)))))))
 
 (defn db-find
-  "Returns values from the datastore that the function returns logical truth for"
+  "Returns values from the datastore that the function returns true against"
   [func]
   (redis/with-server cx
     (filter func (map db-read (redis/keys "*")))))
 
 (defn db-save
   [akey value]
-  "Writes item in store, stores representation of the native value, using typehints 
-  stored with each item, as needed."
+  "Writes item in store, stores an s-expression of the native value"
   (redis/with-server cx
                      (cond
 

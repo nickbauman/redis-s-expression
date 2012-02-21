@@ -118,8 +118,11 @@
            (is (= "OK" (db-save "foo" {"fifty" {:something 1 :anotherthing 2} "sixty" '(1 2 3 "foo")})))
            (is (not (empty? (db-find (fn[value] (if (map? value) (some #(= "fifty" %) (keys value))))))))))
 
-(deftest test-bench
-  (time (loop [tries (range 1 2000)
+(defn bench
+  "Call this to bench the server"
+  []
+  (println "number of inserts / reads:")
+  (time (loop [tries (range 1 5001)
                c 0]
           (if-let [tri (first tries)]
             (let [data {(rand tri) [(rand tri) 3 4 5] (inc tri) ["bar" {:la 1 :te 2 :da (rand tri)} "foo"]}]

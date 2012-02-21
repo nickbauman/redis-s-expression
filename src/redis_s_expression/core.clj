@@ -1,3 +1,5 @@
 (ns redis-s-expression.core
-  (:use rsxp.serialization
-        rsxp.dal))
+  (:use 
+    rsxp.util
+    rsxp.serialization
+    rsxp.dal))
