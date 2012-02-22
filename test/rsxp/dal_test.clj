@@ -113,10 +113,17 @@
            (is (= {1 2} (db-read "foo")))))
 
 (deftest test-find
-  (testing "Find functions:"
            (is (empty? (db-find (fn[value] (if (map? value) (some #(= "fifty" %) (keys value)))))))
            (is (= "OK" (db-save "foo" {"fifty" {:something 1 :anotherthing 2} "sixty" '(1 2 3 "foo")})))
-           (is (not (empty? (db-find (fn[value] (if (map? value) (some #(= "fifty" %) (keys value))))))))))
+           (is (not (empty? (db-find (fn[value] (if (map? value) (some #(= "fifty" %) (keys value)))))))))
+
+(defrecord GoofyPerson [fname lname])
+
+(deftest test-protocols
+  (let [nick (GoofyPerson. "Nikilek" "Gebagobi")]
+    (is (empty? (db-find (fn[value] (if (map? value) (some #(= :fname %) (keys value)))))))
+    (is (= "OK" (db-save (type nick) nick)))
+    (is (not (empty? (db-find (fn[value] (if (map? value) (some #(= :fname %) (keys value))))))))))
 
 (defn bench
   "Call this to bench the server"

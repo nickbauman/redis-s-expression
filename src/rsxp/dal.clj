@@ -146,14 +146,14 @@
   "Returns values from the datastore that the function returns true against"
   [func]
   (redis/with-server cx
-    (filter func (map db-read (redis/keys "*")))))
+                     (filter func (map db-read (redis/keys "*")))))
 
 (defn db-save
   [akey value]
   "Writes item in store, stores an s-expression of the native value"
   (redis/with-server cx
                      (cond
-
+                       
                        (or (string? value) (integer? value) (float? value) (keyword? value))
                        (redis/set akey (serialize value))
                        
