@@ -25,10 +25,6 @@
                  (map second my-obj))
     (list (class my-obj) 'new)))
 
-;; special types, work in progress
-(def ^{:private true} type-conversion-map
-  [[#"^rsxp\..*" local2expression]])
-
 (defn- coll2expression
   "converts a collection by converting its elements"
   [coll]
@@ -41,6 +37,10 @@
                      (empty coll))
         coll (if (list? empty-coll) (reverse coll) coll)]
     (reduce conj empty-coll (map convert2expression coll))))
+
+;; special types, work in progress
+(def type-conversion-map
+  [[#"^rsxp\..*" local2expression]])
 
 (defn convert2expression
   "convert something to an s-expression"

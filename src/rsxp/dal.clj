@@ -1,6 +1,6 @@
 (ns rsxp.dal
   ^{:doc "Data Access Layer over Redis"}
-  (:use [rsxp.serialization :only [serialize deserialize]])
+  (:use [rsxp.serialization :only [serialize deserialize type-conversion-map]])
   (:require [redis.core :as redis])
   (:import [java.io StringReader PushbackReader StringWriter]))
 
@@ -81,9 +81,10 @@
           native types as needed."}
   [akey]
   (redis/with-server cx
-                     (let [the-keys (map deserialize (redis/hkeys akey))
-                           the-values (map deserialize (redis/hvals akey))]
-                         (into {} (into [] (map #(into [] %) (partition 2 (interleave the-keys the-values))))))))
+                     (let [amap (into {} (map (fn[[x y]] [(deserialize x) (deserialize y)]) (redis/hgetall akey)))]
+                       (if (:serialized-type amap)
+                         (eval (deserialize (:serialized-type amap)))
+                         amap))))
 
 (defn db-val-type
   ^{:private true 
@@ -162,6 +163,10 @@
                        
                        (set? value)
                        (db-save-set akey value)
+                       
+                       ; Here we catch locally configured protocoled types...
+                       (some #(re-find (first %) (.getName (type value))) type-conversion-map)
+                       (db-save-map akey (assoc value :serialized-type (serialize value)))
                        
                        (map? value)
                        (db-save-map akey value)

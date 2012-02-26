@@ -1,6 +1,7 @@
 (ns rsxp.dal-test
   (:use rsxp.dal
         rsxp.util
+        rsxp.protocols
         clojure.test)
   (:import [java.net SocketException]))
 
@@ -101,10 +102,10 @@
            (is (= "OK" (db-save "foo" {"fifty" {:something 1 :anotherthing 2} "sixty" '(1 2 3 "foo")})))
            (is (= {"fifty" {:something 1 :anotherthing 2} "sixty" '(1 2 3 "foo")} (db-read "foo"))))
   
+  
   (testing "A map whose keys are integers, whose values are strings, vectors, lists, and those lists are comprised of strings and maps"
            (is (= "OK" (db-save "foo" {1 [1 2 3 4 5] 2 '("bar" {:la 1 :te 2 :da 3} "foo")})))
            (is (= {1 [1 2 3 4 5] 2 '("bar" {:la 1 :te 2 :da 3} "foo")} (db-read "foo"))))
-  
   (testing "Make sure symbols are converted into correct primitives"
            (let [a 1
                  b 2]
@@ -117,13 +118,13 @@
            (is (= "OK" (db-save "foo" {"fifty" {:something 1 :anotherthing 2} "sixty" '(1 2 3 "foo")})))
            (is (not (empty? (db-find (fn[value] (if (map? value) (some #(= "fifty" %) (keys value)))))))))
 
-(defrecord GoofyPerson [fname lname])
-
 (deftest test-protocols
-  (let [nick (GoofyPerson. "Nikilek" "Gebagobi")]
+  (let [nick (rsxp.protocols.GoofyPerson. "Nikilek" "Gebagobi")]
     (is (empty? (db-find (fn[value] (if (map? value) (some #(= :fname %) (keys value)))))))
     (is (= "OK" (db-save (type nick) nick)))
-    (is (not (empty? (db-find (fn[value] (if (map? value) (some #(= :fname %) (keys value))))))))))
+    (let [read-result (db-find (fn[value] (if (map? value) (some #(= :fname %) (keys value)))))]
+      (is (not (empty? read-result)))
+      (is (= rsxp.protocols.GoofyPerson  (type (first read-result)))))))
 
 (defn bench
   "Call this to bench the server"
