@@ -15,9 +15,8 @@
     :doc "Remove an entry that has an incompatible value type, if necessary."}
   [akey type-kw]
   (redis/with-server cx
-                     (if (and (redis/exists akey) 
-                              (not (= type-kw (redis/type akey))))
-                         (redis/del akey))))
+                     (if (and (redis/exists akey) (not (= type-kw (redis/type akey))))
+                       (redis/del akey))))
 
 ; Writers
 (defn db-save-list
@@ -68,7 +67,7 @@
                       (into () (reverse (map deserialize stored-representation))))))
 
 (defn db-read-set
-  ^{:private
+  ^{:private true
     :doc "Reads a set from the store. Converts stored representation if items in set into 
           native types as needed."}
   [akey]

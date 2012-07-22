@@ -102,7 +102,6 @@
            (is (= "OK" (db-save "foo" {"fifty" {:something 1 :anotherthing 2} "sixty" '(1 2 3 "foo")})))
            (is (= {"fifty" {:something 1 :anotherthing 2} "sixty" '(1 2 3 "foo")} (db-read "foo"))))
   
-  
   (testing "A map whose keys are integers, whose values are strings, vectors, lists, and those lists are comprised of strings and maps"
            (is (= "OK" (db-save "foo" {1 [1 2 3 4 5] 2 '("bar" {:la 1 :te 2 :da 3} "foo")})))
            (is (= {1 [1 2 3 4 5] 2 '("bar" {:la 1 :te 2 :da 3} "foo")} (db-read "foo"))))
